@@ -5,6 +5,14 @@ spring:
   application:
     name: dots-and-boxes-server
 
+auth:
+  jwt:
+    # The signing secret. It must be overridden in every deployment that is
+    # not a local development run, and it must be at least 32 bytes so that
+    # HMAC-SHA256 is used.
+    secret: ${AUTH_JWT_SECRET:change-me-before-deploying-this-app}
+    expiration-minutes: 60
+
 logging:
   level:
     com.makesquare: INFO
