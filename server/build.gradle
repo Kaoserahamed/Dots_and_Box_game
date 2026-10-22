@@ -6,6 +6,17 @@ plugins {
 dependencies {
     implementation project(':shared')
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Only the cryptography is taken from Spring Security. The whole security
+    // framework is not needed: the token is checked by the authentication
+    // middleware, and the only thing wanted from Spring Security is a well
+    // tested password hasher.
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
