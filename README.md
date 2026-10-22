@@ -11,27 +11,29 @@ A classic two-player dots and boxes game built with Java Swing. Players take tur
 
 ## Requirements
 
-- Java Development Kit (JDK) 8 or higher
-- Maven 3.6+ or Gradle 6.0+ (for building from source)
+- Java Development Kit (JDK) 17 or higher
+- Maven 3.6+ or Gradle 8.0+ (for building from source)
 
 ## Download
 
 ### Pre-built JAR
-Download the latest release from the [Releases](https://github.com/Kaoserahamed/Kaoserahamed/releases) page.
+Download the latest release from the [Releases](https://github.com/Kaoserahamed/Dots_and_Box_game/releases) page.
 
 ### Build from Source
 
+The build is split into three modules, and the two build tools mirror each other exactly.
+
 **Using Maven:**
 ```bash
-git clone https://github.com/Kaoserahamed/Kaoserahamed.git
-cd Kaoserahamed
+git clone https://github.com/Kaoserahamed/Dots_and_Box_game.git
+cd Dots_and_Box_game
 mvn clean package
 ```
 
 **Using Gradle:**
 ```bash
-git clone https://github.com/Kaoserahamed/Kaoserahamed.git
-cd Kaoserahamed
+git clone https://github.com/Kaoserahamed/Dots_and_Box_game.git
+cd Dots_and_Box_game
 gradle build
 ```
 
@@ -39,54 +41,56 @@ gradle build
 
 ### From JAR file:
 ```bash
-java -jar make-square-game-1.0.0.jar
+java -jar client/target/make-square-game-1.0.0-jar-with-dependencies.jar
 ```
 
 ### From source with Maven:
 ```bash
-mvn exec:java -Dexec.mainClass="com.makesquare.Main"
+mvn -pl client exec:java -Dexec.mainClass="com.makesquare.Main"
 ```
 
 ### From source with Gradle:
 ```bash
-gradle run
+gradle :client:run
 ```
 
-### Direct compilation:
-```bash
-# Compile
-javac -d bin -sourcepath src/main/java src/main/java/com/makesquare/Main.java
+### Running the server
 
-# Run
-java -cp bin com.makesquare.Main
+The server is a separate Spring Boot service. It needs a signing secret for the session tokens,
+and it must be at least 32 bytes long.
+
+```bash
+export AUTH_JWT_SECRET="a-secret-of-at-least-32-bytes-for-local-use"
+mvn -pl server spring-boot:run
 ```
 
 ## Project Structure
 
 ```
-make-square-game/
-├── src/
-│   └── main/
-│       ├── java/
-│       │   └── com/
-│       │       └── makesquare/
-│       │           ├── Main.java                    # Entry point
-│       │           ├── constants/
-│       │           │   └── GameConstants.java       # Game configuration
-│       │           ├── model/
-│       │           │   └── GameState.java           # Game state management
-│       │           ├── logic/
-│       │           │   └── GameLogic.java           # Core game logic
-│       │           ├── ui/
-│       │           │   ├── StartFrame.java          # Welcome screen
-│       │           │   └── GameFrame.java           # Main game window
-│       │           └── util/
-│       │               ├── AudioPlayer.java         # Sound effects
-│       │               └── ResourceLoader.java      # Resource management
-│       └── resources/                               # Game assets (images, sounds)
-├── pom.xml                                          # Maven configuration
-├── build.gradle                                     # Gradle configuration
-└── README.md                                        # This file
+Dots_and_Box_game/
+├── shared/                                          # The protocol the client and server speak
+│   └── src/main/java/com/makesquare/shared/protocol/
+│       ├── MessageType.java                        # The message vocabulary
+│       └── MoveMessage.java                        # One move
+├── client/                                          # The desktop game
+│   ├── src/main/java/com/makesquare/
+│   │   ├── Main.java                               # Entry point
+│   │   ├── constants/GameConstants.java            # Game configuration
+│   │   ├── model/GameState.java                    # Game state management
+│   │   ├── logic/GameLogic.java                    # Core game logic
+│   │   ├── ui/                                     # StartFrame, GameFrame
+│   │   └── util/                                   # AudioPlayer, ResourceLoader
+│   └── src/main/resources/                         # Game assets (images, sounds)
+├── server/                                          # The Spring Boot service
+│   ├── src/main/java/com/makesquare/server/
+│   │   ├── ServerApplication.java                  # Entry point
+│   │   ├── StatusController.java                   # Service status
+│   │   └── auth/                                   # Registration, sign in, JWT sessions
+│   └── src/main/resources/application.yml          # Server configuration
+├── config/checkstyle.xml                           # The style rules the pipeline enforces
+├── pom.xml                                          # Maven build, an aggregator over the modules
+├── settings.gradle                                  # Gradle build, mirroring the Maven modules
+└── build.gradle
 ```
 
 ## Features
@@ -107,10 +111,12 @@ make-square-game/
 
 ## Technical Details
 
-- **Language:** Java 8+
-- **GUI Framework:** Swing
-- **Build Tools:** Maven / Gradle
-- **Architecture:** MVC pattern with separated concerns
+- **Language:** Java 17
+- **GUI Framework:** Swing (JavaFX is the target for the client module)
+- **Server:** Spring Boot 3, with JSON Web Token sessions and bcrypt password hashing
+- **Build Tools:** Maven / Gradle, over the same three modules
+- **Architecture:** three modules - a shared protocol, a client and a server
+- **Quality:** Checkstyle and Spotless in the pipeline, JUnit 5 with JaCoCo coverage
 
 ## Version History
 
