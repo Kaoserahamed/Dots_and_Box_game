@@ -126,11 +126,28 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # The scan is published rather than enforced. The National Vulnerability
-      # Database needs an API key for a reliable run, and without one the
-      # download is rate limited, so a failing build here would say more about
-      # the feed than about the project.
+      # Secret detection comes first because it is the check that must always
+      # run, and it does not depend on an external feed.
+      - name: Detect committed secrets
+        run: >
+          docker run --rm -v "$PWD":/repo
+          zricethezav/gitleaks:latest detect --source=/repo --no-git --redact --verbose
+
+      - name: Scan the filesystem for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      # The dependency scan is published rather than enforced. The National
+      # Vulnerability Database needs an API key for a reliable run, and without
+      # one the download is rate limited and the scan aborts before it
+      # produces anything. The step is allowed to fail for that reason, and
+      # the Trivy scan above covers the same ground in the meantime.
       - name: Scan the dependencies
+        continue-on-error: true
         run: >
           mvn -B -ntp org.owasp:dependency-check-maven:check
           -Dformat=HTML
@@ -145,19 +162,6 @@ jobs:
           path: target/dependency-check-report.html
           if-no-files-found: ignore
           retention-days: 14
-
-      - name: Detect committed secrets
-        run: >
-          docker run --rm -v "$PWD":/repo
-          zricethezav/gitleaks:latest detect --source=/repo --no-git --redact --verbose
-
-      - name: Scan the filesystem for vulnerabilities
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '0'
 
   deploy:
     name: Release

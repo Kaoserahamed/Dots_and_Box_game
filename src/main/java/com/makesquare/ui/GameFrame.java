@@ -356,7 +356,9 @@ public class GameFrame extends JFrame {
         // Reset all lines
         for (int i = 1; i <= 34; i++) {
             int j = i + 1;
-            if (i % GameConstants.DOTS_PER_ROW == 0) continue;
+            if (i % GameConstants.DOTS_PER_ROW == 0) {
+                continue;
+            }
             if (lines[i][j] != null) {
                 lines[i][j].setBackground(GameConstants.BACKGROUND_COLOR);
             }
@@ -371,7 +373,9 @@ public class GameFrame extends JFrame {
         
         // Reset all boxes
         for (int i = 1; i <= 27; i++) {
-            if (i % GameConstants.DOTS_PER_ROW == 0) continue;
+            if (i % GameConstants.DOTS_PER_ROW == 0) {
+                continue;
+            }
             if (boxes[i] != null) {
                 boxes[i].setBackground(GameConstants.BACKGROUND_COLOR);
                 boxes[i].setText("");

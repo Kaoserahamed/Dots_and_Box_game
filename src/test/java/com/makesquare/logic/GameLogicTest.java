@@ -93,8 +93,10 @@ class GameLogicTest {
         // The final square of a six-row board is bounded by dots 28 and 29.
         completeSquare(27);
 
-        assertTrue(logic.checkForCompletedSquare(28, 29, state));
+        // The index is read first, because detecting a square also marks it
+        // as visited, and a visited square is no longer reported.
         assertEquals(27, logic.getSquareIndex(state));
+        assertTrue(logic.checkForCompletedSquare(28, 29, state));
     }
 
     @Test
