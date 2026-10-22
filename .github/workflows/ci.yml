@@ -2,9 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [development]
-  pull_request:
-    branches: [development]
+    branches: \[main\]
 
 jobs:
   lint:
@@ -72,3 +70,4 @@ jobs:
         run: |
           echo "Creating release with JAR artifact"
           docker build -t dots-and-box-game .
+
