@@ -5,10 +5,23 @@ plugins {
 
 group = 'com.makesquare'
 version = '1.0.0'
-sourceCompatibility = '8'
 
 repositories {
     mavenCentral()
+}
+
+// The build targets the same Java release as the Maven build, so the two
+// builds cannot drift apart and produce artifacts that disagree.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 application {
@@ -23,6 +36,10 @@ jar {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
 
 sourceSets {
