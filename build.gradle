@@ -1,51 +1,35 @@
 plugins {
     id 'java'
-    id 'application'
+    id 'org.springframework.boot' version '3.2.5' apply false
+    id 'io.spring.dependency-management' version '1.1.4' apply false
 }
 
-group = 'com.makesquare'
-version = '1.0.0'
+allprojects {
+    group = 'com.makesquare'
+    version = '1.0.0'
 
-repositories {
-    mavenCentral()
-}
-
-// The build targets the same Java release as the Maven build, so the two
-// builds cannot drift apart and produce artifacts that disagree.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+    repositories {
+        mavenCentral()
     }
 }
 
-dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.2')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
+subprojects {
+    apply plugin: 'java'
 
-application {
-    mainClass = 'com.makesquare.Main'
-}
-
-jar {
-    manifest {
-        attributes 'Main-Class': 'com.makesquare.Main'
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs = ['src/main/resources']
+    // The build targets the same Java release as the Maven build.
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
         }
+    }
+
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.10.2')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
     }
 }

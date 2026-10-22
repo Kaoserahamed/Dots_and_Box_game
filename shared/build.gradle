@@ -1,0 +1,2 @@
+// The shared protocol module. It has no dependencies of its own: the point of the module is
+// that both the client and the server compile against the same vocabulary.

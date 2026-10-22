@@ -40,7 +40,6 @@ public class GameConstants {
     public static final String PLAYER2_INITIAL = "M";
     
     // Resource paths
-    public static final String RESOURCE_PATH = "src/main/resources/";
     public static final String IMAGE_PLAYER1 = "gopu3.jpg";
     public static final String IMAGE_PLAYER2 = "madhab1.jpg";
     public static final String IMAGE_BACKGROUND = "Mainba (1).jpg";

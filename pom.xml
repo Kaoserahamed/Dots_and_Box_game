@@ -6,12 +6,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.makesquare</groupId>
-    <artifactId>make-square-game</artifactId>
+    <artifactId>dots-and-boxes</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>Make Square Game</name>
-    <description>A two-player dots and boxes game built with Java Swing</description>
+    <name>GridBattle</name>
+    <description>
+        GridBattle: a real-time multiplayer dots and boxes platform. The build is split into
+        three modules - the protocol both sides speak, the desktop client and the server.
+    </description>
+
+    <modules>
+        <module>shared</module>
+        <module>client</module>
+        <module>server</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -20,12 +29,30 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <junit.version>5.10.2</junit.version>
+        <spring-boot.version>3.2.5</spring-boot.version>
         <jacoco.version>0.8.12</jacoco.version>
         <checkstyle.plugin.version>3.3.1</checkstyle.plugin.version>
         <checkstyle.tool.version>10.17.0</checkstyle.tool.version>
         <spotless.plugin.version>2.43.0</spotless.plugin.version>
         <surefire.plugin.version>3.2.5</surefire.plugin.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--
+                The Spring Boot bill of materials is imported here rather than in the
+                server module, so every module resolves its versions from one place and
+                the server module does not need a parent of its own.
+            -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -52,44 +79,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.plugin.version}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.1</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.makesquare.Main</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.makesquare.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!--
@@ -121,9 +110,10 @@
 
             <!--
                 Checkstyle and Spotless are configured here so the pipeline can
-                invoke them by goal. The rule set is deliberately small and
-                deliberately satisfied by the existing code; the fuller style
-                configuration is its own piece of work.
+                invoke them by goal, and so every module is held to the same
+                rules. The rule set is deliberately small and deliberately
+                satisfied by the existing code; the fuller style configuration
+                is its own piece of work.
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -152,10 +142,10 @@
                 <configuration>
                     <java>
                         <!--
-                            The text rules only. They need no compiler
-                            internals, so the formatter cannot fail on a JDK
-                            it was not built for, and they are the rules that
-                            actually matter for a readable diff.
+                            The text rules only. They need no compiler internals, so
+                            the formatter cannot fail on a JDK it was not built for,
+                            and they are the rules that actually matter for a
+                            readable diff.
                         -->
                         <trimTrailingWhitespace/>
                         <endWithNewline/>
@@ -163,14 +153,5 @@
                 </configuration>
             </plugin>
         </plugins>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
     </build>
 </project>

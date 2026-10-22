@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.makesquare</groupId>
+        <artifactId>dots-and-boxes</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>shared</artifactId>
+    <name>GridBattle Shared Protocol</name>
+    <description>
+        The contract the client and the server both speak. It holds the message vocabulary and
+        nothing else, so neither side can drift into owning the other's half of a conversation.
+    </description>
+</project>
