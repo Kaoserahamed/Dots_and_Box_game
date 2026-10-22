@@ -12,11 +12,14 @@ FROM maven:3-eclipse-temurin-17 AS build
 
 WORKDIR /build
 
-# The aggregator POM and the two modules the client needs are copied first, so
-# a change to the sources does not re-resolve the dependencies.
+# The aggregator POM and the modules are copied first, so a change to the
+# sources does not re-resolve the dependencies. Every module the aggregator
+# lists has to be present, even the one this image does not build: the
+# reactor is read as a whole.
 COPY pom.xml .
 COPY shared ./shared
 COPY client ./client
+COPY server ./server
 RUN mvn -B -ntp -pl client -am clean package -DskipTests
 
 
