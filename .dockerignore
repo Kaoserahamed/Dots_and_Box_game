@@ -1,0 +1,17 @@
+# Build outputs and local state never belong in the image context.
+target/
+build/
+.gradle/
+.mvn/wrapper/maven-wrapper.jar
+
+# Editor and OS noise
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tempCodeRunnerFile.java
