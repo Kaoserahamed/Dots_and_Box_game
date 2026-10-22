@@ -2,6 +2,7 @@ package com.makesquare.server.auth;
 
 import com.makesquare.server.auth.dto.AuthResponse;
 import com.makesquare.server.auth.dto.LoginRequest;
+import com.makesquare.server.auth.dto.RegisterRequest;
 import com.makesquare.server.auth.dto.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
