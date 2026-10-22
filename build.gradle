@@ -13,6 +13,11 @@ allprojects {
     }
 }
 
+ext {
+    // The JSON Web Token library that issues and verifies the session tokens.
+    jjwtVersion = '0.12.5'
+}
+
 subprojects {
     apply plugin: 'java'
 
