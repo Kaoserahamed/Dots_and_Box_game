@@ -5,7 +5,7 @@
 # also carries a virtual framebuffer: `xvfb-run java -jar /app/app.jar`
 # starts the game against a virtual screen, which is what a headless
 # container can offer.
-FROM eclipse-temurin:17-jdk AS build
+FROM maven:3-eclipse-temurin-17 AS build
 
 WORKDIR /build
 
