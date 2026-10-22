@@ -151,11 +151,14 @@
                 <version>${spotless.plugin.version}</version>
                 <configuration>
                     <java>
+                        <!--
+                            The text rules only. They need no compiler
+                            internals, so the formatter cannot fail on a JDK
+                            it was not built for, and they are the rules that
+                            actually matter for a readable diff.
+                        -->
                         <trimTrailingWhitespace/>
                         <endWithNewline/>
-                        <indentWithSpaces>
-                            <tabs>4</tabs>
-                        </indentWithSpaces>
                     </java>
                 </configuration>
             </plugin>
