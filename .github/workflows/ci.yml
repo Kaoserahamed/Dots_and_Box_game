@@ -2,7 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [main, development]
+    branches:
+      - main
+      - development
+      # A push to a feature branch runs the pipeline as well. The pull request
+      # event takes its workflow from the base branch, so until this file has
+      # been merged into development a pull request cannot gate itself, and
+      # the feature branch push is what validates the work in the meantime.
+      - 'feature/**'
   pull_request:
     branches: [main, development]
   workflow_dispatch:
