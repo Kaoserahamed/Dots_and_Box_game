@@ -16,10 +16,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * Tests the authentication endpoints end to end, through the real filter chain.
+ *
+ * <p>Every test registers its own account, because the store is shared by the whole test
+ * context and a name can only be taken once.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthControllerTest {
+
+    private static final String PASSWORD = "correct-horse-battery";
 
     @Autowired
     private MockMvc mockMvc;
@@ -27,32 +32,24 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private String body(String username, String email, String password) throws Exception {
+    private String registrationBody(String username) throws Exception {
         return objectMapper.writeValueAsString(Map.of(
                 "username", username,
-                "email", email,
-                "password", password));
+                "email", username + "@example.com",
+                "password", PASSWORD));
+    }
+
+    private String loginBody(String username) throws Exception {
+        return objectMapper.writeValueAsString(Map.of(
+                "username", username,
+                "password", PASSWORD));
     }
 
     private String tokenFor(String username) throws Exception {
         String response = mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body(username, username + "@example.com", "correct-horse-battery")))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        if (response.contains("\"token\"")) {
-            return objectMapper.readTree(response).get("token").asText();
-        }
-
-        // The account is already registered, which happens because the store
-        // is shared by the whole test context, so sign in instead.
-        response = mockMvc.perform(post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of(
-                                "username", username,
-                                "password", "correct-horse-battery"))))
-                .andExpect(status().isOk())
+                        .content(registrationBody(username)))
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -63,9 +60,9 @@ class AuthControllerTest {
     void registeringReturnsAnAccountAndAToken() throws Exception {
         mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body("gopal", "gopal@example.com", "correct-horse-battery")))
+                        .content(registrationBody("gopal-new")))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.user.username").value("gopal"))
+                .andExpect(jsonPath("$.user.username").value("gopal-new"))
                 .andExpect(jsonPath("$.user.role").value("PLAYER"))
                 .andExpect(jsonPath("$.token").isNotEmpty())
                 .andExpect(jsonPath("$.user.passwordHash").doesNotExist());
@@ -75,38 +72,36 @@ class AuthControllerTest {
     void registeringTheSameUsernameTwiceIsAConflict() throws Exception {
         mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(body("madhav", "madhav@example.com", "correct-horse-battery")))
+                .content(registrationBody("madhav-conflict")))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body("madhav", "madhav2@example.com", "correct-horse-battery")))
+                        .content(registrationBody("madhav-conflict")))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("username_taken"));
     }
 
     @Test
     void signingInWithTheRightPasswordReturnsAToken() throws Exception {
-        tokenFor("gopal");
+        tokenFor("gopal-login");
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of(
-                                "username", "gopal",
-                                "password", "correct-horse-battery"))))
+                        .content(loginBody("gopal-login")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.username").value("gopal"))
+                .andExpect(jsonPath("$.user.username").value("gopal-login"))
                 .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
     @Test
     void signingInWithTheWrongPasswordIsRefused() throws Exception {
-        tokenFor("gopal");
+        tokenFor("gopal-wrong");
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "username", "gopal",
+                                "username", "gopal-wrong",
                                 "password", "wrong-horse-battery"))))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("invalid_credentials"));
@@ -121,11 +116,11 @@ class AuthControllerTest {
 
     @Test
     void aTokenIdentifiesTheAccount() throws Exception {
-        String token = tokenFor("gopal");
+        String token = tokenFor("gopal-me");
 
         mockMvc.perform(get("/api/v1/auth/me").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("gopal"));
+                .andExpect(jsonPath("$.username").value("gopal-me"));
     }
 
     @Test
@@ -137,7 +132,7 @@ class AuthControllerTest {
 
     @Test
     void signingOutStopsTheTokenWorking() throws Exception {
-        String token = tokenFor("gopal");
+        String token = tokenFor("gopal-logout");
 
         mockMvc.perform(post("/api/v1/auth/logout").header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
