@@ -1,0 +1,14 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'dots-and-boxes'
+
+// The three modules of the build. They mirror the Maven modules exactly, so the two builds
+// cannot drift apart and produce artifacts that disagree.
+include 'shared'
+include 'client'
+include 'server'

@@ -5,13 +5,22 @@
 # also carries a virtual framebuffer: `xvfb-run java -jar /app/app.jar`
 # starts the game against a virtual screen, which is what a headless
 # container can offer.
+#
+# Only the client module is built into the image. The server is a separate
+# service with its own image, which is a later piece of work.
 FROM maven:3-eclipse-temurin-17 AS build
 
 WORKDIR /build
 
+# The aggregator POM and the modules are copied first, so a change to the
+# sources does not re-resolve the dependencies. Every module the aggregator
+# lists has to be present, even the one this image does not build: the
+# reactor is read as a whole.
 COPY pom.xml .
-COPY src ./src
-RUN mvn -B -ntp clean package -DskipTests
+COPY shared ./shared
+COPY client ./client
+COPY server ./server
+RUN mvn -B -ntp -pl client -am clean package -DskipTests
 
 
 FROM eclipse-temurin:17-jre
@@ -24,6 +33,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=build /build/target/make-square-game-1.0.0-jar-with-dependencies.jar /app/app.jar
+COPY --from=build /build/client/target/make-square-game-1.0.0-jar-with-dependencies.jar /app/app.jar
 
 ENTRYPOINT ["xvfb-run", "--auto-servernum", "java", "-jar", "/app/app.jar"]

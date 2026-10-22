@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.InputStream;
 
 /**
  * Main game window containing the game board and controls
@@ -283,9 +284,9 @@ public class GameFrame extends JFrame {
     }
     
     private void handleSquareCompletion() {
-        String audioPath = ResourceLoader.getAudioPath(GameConstants.AUDIO_SQUARE);
-        if (!audioPath.isEmpty()) {
-            AudioPlayer.playSound(audioPath);
+        InputStream audio = ResourceLoader.getAudioStream(GameConstants.AUDIO_SQUARE);
+        if (audio != null) {
+            AudioPlayer.playSound(audio);
         }
         
         int squareIndex = gameLogic.getSquareIndex(gameState);

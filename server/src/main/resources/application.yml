@@ -1,0 +1,10 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: dots-and-boxes-server
+
+logging:
+  level:
+    com.makesquare: INFO
